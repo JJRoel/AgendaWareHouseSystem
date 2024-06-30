@@ -9,7 +9,7 @@ class ItemId extends Model
 {
     use HasFactory;
 
-    protected $table = 'item_id'; // Specify the correct table name
+    protected $table = 'item'; // Specify the correct table name
 
     protected $fillable = [
         'groupid', 'name', 'aanschafdatum', 'tiernummer', 'status', 'picture'

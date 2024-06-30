@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,7 +12,7 @@ class Booking extends Model
     protected $fillable = [
         'item_id',
         'user_id',
-        'start_at',
-        'end_at'
+        'start_date',
+        'end_date'
     ];
 }
