@@ -1,5 +1,6 @@
 <?php
 
+// app/Models/Item.php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,11 +10,15 @@ class Item extends Model
 {
     use HasFactory;
 
-    protected $table = 'item';  // Corrected table name
-
     protected $fillable = [
         'groupid', 'name', 'aanschafdatum', 'tiernummer', 'status', 'picture'
     ];
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class, 'groupid');
+    }
 }
+
 
 

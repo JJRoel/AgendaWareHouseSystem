@@ -1,66 +1,49 @@
 <?php
 
+// app/Http/Controllers/BookingController.php
 namespace App\Http\Controllers;
 
-use App\Models\Booking;
 use Illuminate\Http\Request;
+use App\Models\Booking;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class BookingController extends Controller
 {
     public function index()
     {
-        return response()->json(Booking::all());
+        try {
+            $bookings = Booking::with('item', 'user')->get();
+            return response()->json($bookings);
+        } catch (\Exception $e) {
+            Log::error('Error fetching bookings: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to fetch bookings'], 500);
+        }
     }
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'start' => 'required|date',
-            'end' => 'required|date|after_or_equal:start',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|integer|exists:users,id',
+                'item_id' => 'required|integer|exists:items,id',
+                'description' => 'nullable|string',
+                'start_date' => 'required|date',
+                'end_date' => 'required|date'
+            ]);
 
-        $booking = Booking::create([
-            'item_id' => 1, // Assuming a default item_id or this should be passed in the request
-            'user_id' => 1, // Assuming a default user_id or this should be passed in the request
-            'start_date' => $validatedData['start'],
-            'end_date' => $validatedData['end'],
-        ]);
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
 
-        return response()->json($booking, 201);
-    }
+            $booking = Booking::create($validator->validated());
 
-    public function show($id)
-    {
-        $booking = Booking::findOrFail($id);
-        return response()->json($booking);
-    }
-
-    public function update(Request $request, $id)
-    {
-        $booking = Booking::findOrFail($id);
-
-        $validatedData = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'start' => 'sometimes|required|date',
-            'end' => 'sometimes|required|date|after_or_equal:start',
-        ]);
-
-        $booking->update([
-            'item_id' => 1, // Assuming a default item_id or this should be passed in the request
-            'user_id' => 1, // Assuming a default user_id or this should be passed in the request
-            'start_date' => $validatedData['start'],
-            'end_date' => $validatedData['end'],
-        ]);
-
-        return response()->json($booking, 200);
-    }
-
-    public function destroy($id)
-    {
-        $booking = Booking::findOrFail($id);
-        $booking->delete();
-
-        return response()->json(null, 204);
+            return response()->json($booking, 201);
+        } catch (\Exception $e) {
+            Log::error('Error creating booking: ' . $e->getMessage());
+            Log::error('Request data: ' . json_encode($request->all()));
+            return response()->json(['error' => 'Failed to create booking', 'message' => $e->getMessage()], 500);
+        }
     }
 }
+

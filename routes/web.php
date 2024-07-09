@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AdministrationController;
-use App\Http\Controllers\BookingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/items', [AdministrationController::class, 'index'])->name('administration.items.index');
@@ -12,9 +11,15 @@ Route::get('/calendar', function () {
     return view('administration.calendar');
 });
 
+// routes/web.php
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\GroupController;
+
 Route::get('/bookings', [BookingController::class, 'index']);
 Route::post('/bookings', [BookingController::class, 'store']);
-Route::get('/bookings/{id}', [BookingController::class, 'show']);
-Route::put('/bookings/{id}', [BookingController::class, 'update']);
-Route::delete('/bookings/{id}', [BookingController::class, 'destroy']);
+Route::get('/group', [GroupController::class, 'getGroups']);
 
+
+Route::get('/test-calendar', function () {
+    return view('test');
+});
